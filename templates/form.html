@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Extracted Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            border-bottom: 1px solid #eee;
+            padding: 12px 15px;
+        }
+        
+        td input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+        
+        td input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+        
+        .add-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 15px;
+        }
+        
+        .add-btn:hover {
+            background: #764ba2;
+        }
+        
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        
+        .empty-message {
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✏️ Edit Extracted Data</h1>
+        
+        <div class="info-box">
+            <p>Review and edit the extracted data below. All fields are dynamically generated from the OCR results.</p>
+        </div>
+        
+        <form id="editForm">
+            <!-- Key-Value Pairs Section -->
+            {% if data.key_value_pairs %}
+            <div class="section">
+                <h3>📋 Key-Value Pairs</h3>
+                <div id="kvPairsContainer"></div>
+            </div>
+            {% endif %}
+            
+            <!-- Tables Section -->
+            {% if data.tables %}
+            <div class="section">
+                <h3>📊 Tables</h3>
+                <div id="tablesContainer"></div>
+            </div>
+            {% endif %}
+            
+            <!-- Content Sections -->
+            {% if data.content_sections %}
+            <div class="section">
+                <h3>📝 Content Sections</h3>
+                <div id="contentContainer"></div>
+            </div>
+            {% endif %}
+            
+            <!-- Raw Text -->
+            {% if raw_text %}
+            <div class="section">
+                <h3>📄 Raw Extracted Text</h3>
+                <textarea id="rawText" readonly>{{ raw_text }}</textarea>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button type="submit" class="btn-save">✓ Save Changes</button>
+                <button type="button" class="btn-cancel" onclick="window.location.href='/'">← Cancel</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Saving changes...</p>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Data from server - with safe defaults
+        const extractedData = {
+            key_value_pairs: {{ data.key_value_pairs | tojson | default('{}', true) }},
+            tables: {{ data.tables | tojson | default('[]', true) }},
+            content_sections: {{ data.content_sections | tojson | default('[]', true) }}
+        };
+        
+        // Initialize form with extracted data
+        function initializeForm() {
+            // Key-Value Pairs
+            if (extractedData.key_value_pairs && Object.keys(extractedData.key_value_pairs).length > 0) {
+                const kvContainer = document.getElementById('kvPairsContainer');
+                const grid = document.createElement('div');
+                grid.className = 'grid-2';
+                
+                for (const [key, value] of Object.entries(extractedData.key_value_pairs)) {
+                    const group = document.createElement('div');
+                    group.className = 'form-group';
+                    group.innerHTML = `
+                        <label>${escapeHtml(String(key))}</label>
+                        <input type="text" name="kv_${escapeHtml(String(key))}" value="${escapeHtml(String(value))}" data-key="${escapeHtml(String(key))}">
+                    `;
+                    grid.appendChild(group);
+                }
+                kvContainer.appendChild(grid);
+            } else {
+                const kvContainer = document.getElementById('kvPairsContainer');
+                if (kvContainer) {
+                    kvContainer.innerHTML = '<p class="empty-message">No key-value pairs found</p>';
+                }
+            }
+            
+            // Tables
+            if (extractedData.tables && Array.isArray(extractedData.tables) && extractedData.tables.length > 0) {
+                const tablesContainer = document.getElementById('tablesContainer');
+                extractedData.tables.forEach((table, tableIndex) => {
+                    if (table && table.headers && table.rows) {
+                        const tableDiv = document.createElement('div');
+                        tableDiv.className = 'form-group';
+                        
+                        let tableHtml = `<h4 style="color: #667eea; margin-bottom: 10px;">Table ${tableIndex + 1}</h4>`;
+                        tableHtml += '<table>';
+                        tableHtml += '<thead><tr>';
+                        
+                        table.headers.forEach(header => {
+                            tableHtml += `<th>${escapeHtml(String(header))}</th>`;
+                        });
+                        tableHtml += '<th>Action</th></tr></thead>';
+                        tableHtml += '<tbody id="table-' + tableIndex + '">';
+                        
+                        table.rows.forEach((row, rowIndex) => {
+                            tableHtml += '<tr>';
+                            row.forEach((cell, cellIndex) => {
+                                tableHtml += `<td><input type="text" value="${escapeHtml(String(cell))}" data-table="${tableIndex}" data-row="${rowIndex}" data-cell="${cellIndex}"></td>`;
+                            });
+                            tableHtml += `<td><button type="button" class="delete-btn" onclick="deleteTableRow(${tableIndex}, ${rowIndex})">Delete</button></td>`;
+                            tableHtml += '</tr>';
+                        });
+                        
+                        tableHtml += '</tbody></table>';
+                        tableHtml += `<button type="button" class="add-btn" onclick="addTableRow(${tableIndex})">+ Add Row</button>`;
+                        
+                        tableDiv.innerHTML = tableHtml;
+                        tablesContainer.appendChild(tableDiv);
+                    }
+                });
+            } else {
+                const tablesContainer = document.getElementById('tablesContainer');
+                if (tablesContainer) {
+                    tablesContainer.innerHTML = '<p class="empty-message">No tables found</p>';
+                }
+            }
+            
+            // Content Sections
+            if (extractedData.content_sections && Array.isArray(extractedData.content_sections) && extractedData.content_sections.length > 0) {
+                const contentContainer = document.getElementById('contentContainer');
+                extractedData.content_sections.forEach((section, index) => {
+                    const group = document.createElement('div');
+                    group.className = 'form-group';
+                    group.innerHTML = `
+                        <label>Section ${index + 1}</label>
+                        <textarea name="content_${index}" data-index="${index}">${escapeHtml(String(section))}</textarea>
+                    `;
+                    contentContainer.appendChild(group);
+                });
+            } else {
+                const contentContainer = document.getElementById('contentContainer');
+                if (contentContainer) {
+                    contentContainer.innerHTML = '<p class="empty-message">No content sections found</p>';
+                }
+            }
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function addTableRow(tableIndex) {
+            const table = extractedData.tables[tableIndex];
+            const tbody = document.getElementById('table-' + tableIndex);
+            const newRow = document.createElement('tr');
+            const rowIndex = tbody.children.length;
+            
+            let rowHtml = '';
+            table.headers.forEach((_, cellIndex) => {
+                rowHtml += `<td><input type="text" value="" data-table="${tableIndex}" data-row="${rowIndex}" data-cell="${cellIndex}"></td>`;
+            });
+            rowHtml += `<td><button type="button" class="delete-btn" onclick="deleteTableRow(${tableIndex}, ${rowIndex})">Delete</button></td>`;
+            
+            newRow.innerHTML = rowHtml;
+            tbody.appendChild(newRow);
+        }
+        
+        function deleteTableRow(tableIndex, rowIndex) {
+            const tbody = document.getElementById('table-' + tableIndex);
+            if (tbody.children[rowIndex]) {
+                tbody.children[rowIndex].remove();
+            }
+        }
+        
+        function collectFormData() {
+            const formData = {
+                key_value_pairs: {},
+                tables: [],
+                content_sections: []
+            };
+            
+            // Collect key-value pairs
+            document.querySelectorAll('input[name^="kv_"]').forEach(input => {
+                const key = input.dataset.key;
+                formData.key_value_pairs[key] = input.value;
+            });
+            
+            // Collect tables
+            if (extractedData.tables && Array.isArray(extractedData.tables)) {
+                extractedData.tables.forEach((_, tableIndex) => {
+                    const tbody = document.getElementById('table-' + tableIndex);
+                    if (tbody) {
+                        const rows = [];
+                        
+                        tbody.querySelectorAll('tr').forEach(tr => {
+                            const cells = [];
+                            tr.querySelectorAll('input[type="text"]').forEach(input => {
+                                cells.push(input.value);
+                            });
+                            if (cells.length > 0) {
+                                rows.push(cells);
+                            }
+                        });
+                        
+                        formData.tables.push({
+                            headers: extractedData.tables[tableIndex].headers,
+                            rows: rows
+                        });
+                    }
+                });
+            }
+            
+            // Collect content sections
+            document.querySelectorAll('textarea[name^="content_"]').forEach(textarea => {
+                formData.content_sections.push(textarea.value);
+            });
+            
+            return formData;
+        }
+        
+        // Form submission
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = collectFormData();
+            const loading = document.getElementById('loading');
+            
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/save-edit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('✓ Data saved successfully!');
+                    window.location.href = '/';
+                } else {
+                    alert('✗ Error saving data: ' + result.message);
+                }
+            } catch (error) {
+                alert('✗ Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeForm);
+    </script>
+</body>
+</html>

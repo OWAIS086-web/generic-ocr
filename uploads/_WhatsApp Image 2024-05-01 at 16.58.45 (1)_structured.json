@@ -1,0 +1,18 @@
+{
+  "key_value_pairs": {
+    "ID Number": "784-1966-5486904-7",
+    "Name": "Fazal U Rehman Abdullah",
+    "Date of Birth": "01/01/1966",
+    "Nationality": "Afghanistan",
+    "Issuing Date": "05/01/2024",
+    "Expiry Date": "04/01/2026",
+    "Sex": "M"
+  },
+  "tables": [],
+  "detected_objects": [
+    {
+      "type": "document",
+      "description": "Resident Identity Card"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+<h3>OCR Engine Used: {{ engine }}</h3>
+
+<h4>Raw OCR Text</h4>
+<pre>{{ raw_text }}</pre>
+
+<h4>Structured JSON</h4>
+<h3>OCR Engines</h3>
+{{ result.engines_used }}
+
+<h3>Structured JSON</h3>
+<form method="POST">
+<textarea rows="25" cols="100">
+{{ result.structured }}
+</textarea>
+</form>

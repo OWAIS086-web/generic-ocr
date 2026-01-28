@@ -1,0 +1,27 @@
+{
+  "key_value_pairs": {
+    "Date": "06/05/2025",
+    "Time": "23:24",
+    "Merchant ID (MID)": "200000006673",
+    "Term. ID (TID)": "44243034",
+    "Receipt No.": "057960",
+    "Batch No.": "193A11M",
+    "User Agent": "VISA",
+    "Card Number": "4154 B3**** 6122",
+    "Source": "Tan",
+    "Amount": "AED 75.00",
+    "Approval Code": "751596",
+    "Label": "AED",
+    "VISA-Prepaid": "",
+    "Pump Number": "07",
+    "site ID": "STAN 1008",
+    "VAT Amount": "3.57"
+  },
+  "tables": [],
+  "detected_objects": [
+    {
+      "type": "document",
+      "description": "Transaction receipt for ENOC Retail LLC at ENOC Site 1008 in UPP DIFC, Dubai."
+    }
+  ]
+}

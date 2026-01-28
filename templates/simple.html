@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Pipeline - Structured Data Extraction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.2em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            background: #f8f9ff;
+        }
+        
+        .upload-area:hover {
+            background: #eef2ff;
+            border-color: #764ba2;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+        
+        .upload-area input {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .upload-subtext {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .results-header h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .timing {
+            background: #f0f4ff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 700;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.3em;
+        }
+        
+        /* KEY-VALUE PAIRS */
+        .key-value-pairs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .kv-item {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .kv-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.15);
+        }
+        
+        .kv-key {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .kv-value {
+            color: #333;
+            font-size: 1.1em;
+            word-break: break-word;
+            font-weight: 500;
+        }
+        
+        /* TABLES */
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .table-wrapper {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .table-wrapper:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        }
+        
+        .table-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 1em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th {
+            background: #f8f9ff;
+            color: #667eea;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        td {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 14px 15px;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f8f9ff;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* LINE ITEMS */
+        .line-items {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .line-item {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .line-item-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .line-item-label {
+            color: #999;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .line-item-value {
+            color: #333;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        
+        /* RAW TEXT */
+        .raw-text {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #999;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        /* ERROR STATE */
+        .error {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #856404;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #155724;
+        }
+        
+        .content {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .timing {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .timing-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .timing-item strong {
+            color: #667eea;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Structured Data Extraction</h1>
+        <p class="subtitle">AI-powered document processing with row-column & key-pair format</p>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept="image/*,.pdf">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">Click to upload or drag and drop</p>
+            <p class="upload-subtext">Supports: JPG, PNG, PDF</p>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="uploadFile()" id="uploadBtn" disabled>Process Document</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your document... Please wait</p>
+        </div>
+        
+        <div id="error"></div>
+        
+        <div class="results" id="results">
+            <div class="results-header">
+                <h2>✅ Extraction Complete</h2>
+                <div class="timing" id="timingBadge">8.7s</div>
+            </div>
+            
+            <!-- KEY-VALUE PAIRS SECTION -->
+            <div class="section" id="kvSection" style="display: none;">
+                <div class="section-title">
+                    <span class="icon">🔑</span>
+                    Key-Value Pairs
+                </div>
+                <div class="key-value-pairs" id="kvContainer"></div>
+            </div>
+            
+            <!-- TABLES SECTION -->
+            <div class="section" id="tableSection" style="display: none;">
+                <div class="section-title">
+                    <span class="icon">📊</span>
+                    Tables (Row-Column Format)
+                </div>
+                <div class="tables-container" id="tableContainer"></div>
+            </div>
+            
+            <!-- LINE ITEMS SECTION -->
+            <div class="section" id="lineSection" style="display: none;">
+                <div class="section-title">
+                    <span class="icon">📋</span>
+                    Line Items
+                </div>
+                <div class="line-items" id="lineContainer"></div>
+            </div>
+            
+            <!-- RAW TEXT SECTION -->
+            <div class="section" id="rawSection" style="display: none;">
+                <div class="section-title">
+                    <span class="icon">📄</span>
+                    Raw Text
+                </div>
+                <div class="raw-text" id="rawText"></div>
+            </div>
+            
+            <!-- TIMING SECTION -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">⏱️</span>
+                    Performance Metrics
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px;">
+                        <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Preprocessing</div>
+                        <div style="color: #667eea; font-size: 1.3em; font-weight: 700;" id="timePre">-</div>
+                    </div>
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px;">
+                        <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Text Extraction</div>
+                        <div style="color: #667eea; font-size: 1.3em; font-weight: 700;" id="timeExt">-</div>
+                    </div>
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px;">
+                        <div style="color: #999; font-size: 0.85em; margin-bottom: 5px;">Structuring</div>
+                        <div style="color: #667eea; font-size: 1.3em; font-weight: 700;" id="timeLLM">-</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 8px; color: white;">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.85em; margin-bottom: 5px;">Total Time</div>
+                        <div style="font-size: 1.3em; font-weight: 700;" id="timeTotal">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        
+        // Drag and drop
+        document.querySelector('.upload-area').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#764ba2';
+            e.currentTarget.style.background = '#eef2ff';
+        });
+        
+        document.querySelector('.upload-area').addEventListener('dragleave', (e) => {
+            e.currentTarget.style.borderColor = '#667eea';
+            e.currentTarget.style.background = '#f8f9ff';
+        });
+        
+        document.querySelector('.upload-area').addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#667eea';
+            e.currentTarget.style.background = '#f8f9ff';
+            fileInput.files = e.dataTransfer.files;
+            uploadBtn.disabled = false;
+        });
+        
+        fileInput.addEventListener('change', () => {
+            uploadBtn.disabled = false;
+        });
+        
+        function uploadFile() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('error').innerHTML = '';
+            
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.status === 'success') {
+                    displayResults(data);
+                } else {
+                    showError(data.message || 'Processing failed');
+                }
+            })
+            .catch(err => {
+                document.getElementById('loading').style.display = 'none';
+                showError(err.message);
+            });
+        }
+        
+        function displayResults(data) {
+            const structured = data.structured_data || {};
+            
+            // Key-Value Pairs
+            if (structured.key_value_pairs && Object.keys(structured.key_value_pairs).length > 0) {
+                const kvContainer = document.getElementById('kvContainer');
+                kvContainer.innerHTML = '';
+                for (const [key, value] of Object.entries(structured.key_value_pairs)) {
+                    const div = document.createElement('div');
+                    div.className = 'kv-item';
+                    div.innerHTML = `
+                        <div class="kv-key">${escapeHtml(key)}</div>
+                        <div class="kv-value">${escapeHtml(String(value))}</div>
+                    `;
+                    kvContainer.appendChild(div);
+                }
+                document.getElementById('kvSection').style.display = 'block';
+            }
+            
+            // Tables
+            if (structured.tables && structured.tables.length > 0) {
+                const tableContainer = document.getElementById('tableContainer');
+                tableContainer.innerHTML = '';
+                structured.tables.forEach((table, idx) => {
+                    if (table.headers && table.rows) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'table-wrapper';
+                        
+                        let html = `<div class="table-title">${escapeHtml(table.name || `Table ${idx + 1}`)}</div>`;
+                        html += '<table><thead><tr>';
+                        table.headers.forEach(h => html += `<th>${escapeHtml(String(h))}</th>`);
+                        html += '</tr></thead><tbody>';
+                        table.rows.forEach(row => {
+                            html += '<tr>';
+                            row.forEach(cell => html += `<td>${escapeHtml(String(cell))}</td>`);
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table>';
+                        wrapper.innerHTML = html;
+                        tableContainer.appendChild(wrapper);
+                    }
+                });
+                document.getElementById('tableSection').style.display = 'block';
+            }
+            
+            // Line Items
+            if (structured.line_items && structured.line_items.length > 0) {
+                const lineContainer = document.getElementById('lineContainer');
+                lineContainer.innerHTML = '';
+                structured.line_items.forEach((item, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'line-item';
+                    div.innerHTML = `
+                        <div class="line-item-field">
+                            <div class="line-item-label">Description</div>
+                            <div class="line-item-value">${escapeHtml(item.description || '-')}</div>
+                        </div>
+                        <div class="line-item-field">
+                            <div class="line-item-label">Quantity</div>
+                            <div class="line-item-value">${escapeHtml(item.quantity || '-')}</div>
+                        </div>
+                        <div class="line-item-field">
+                            <div class="line-item-label">Amount</div>
+                            <div class="line-item-value">${escapeHtml(item.amount || '-')}</div>
+                        </div>
+                    `;
+                    lineContainer.appendChild(div);
+                });
+                document.getElementById('lineSection').style.display = 'block';
+            }
+            
+            // Raw Text
+            if (structured.raw_text) {
+                document.getElementById('rawText').textContent = structured.raw_text;
+                document.getElementById('rawSection').style.display = 'block';
+            }
+            
+            // Timing
+            const timings = data.timings || {};
+            const total = (timings.total || 0).toFixed(2);
+            document.getElementById('timePre').textContent = (timings.preprocessing || 0).toFixed(2) + 's';
+            document.getElementById('timeExt').textContent = (timings.structured_extraction || timings.text_extraction || 0).toFixed(2) + 's';
+            document.getElementById('timeLLM').textContent = (timings.llm_structuring || 0).toFixed(2) + 's';
+            document.getElementById('timeTotal').textContent = total + 's';
+            document.getElementById('timingBadge').textContent = total + 's';
+            
+            document.getElementById('results').classList.add('show');
+        }
+        
+        function showError(msg) {
+            const error = document.getElementById('error');
+            error.innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
+        }
+        
+        function escapeHtml(text) {
+            const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
