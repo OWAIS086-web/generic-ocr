@@ -1,0 +1,19 @@
+{
+  "key_value_pairs": {
+    "Address": "7373 Gateway Blvd, Newark, CA 94560",
+    "Office Phone": "650 802 8181",
+    "Application for Certification": "2023 Model Year",
+    "Test Group": "PLMUV00.0ZA2",
+    "Durability Group": "PLMUEEVNNZA2",
+    "Evaporative Families": "Not Applicable",
+    "Test Group Description": "Battery Electric Vehicle",
+    "OBD Group": "Not Applicable",
+    "Carlines Covered": "Lucid Air Grand Touring XR w/19\" wheels\nLucid Air Grand Touring XR w/20\" wheels\nLucid Air Grand Touring XR w/21\" wheels\nLucid Air Grand Touring Performance w/21\" wheels",
+    "Vehicle Category": "Light-duty vehicle",
+    "Applicable standards": "FEDERAL Tier 3 BIN 0 & CALIFORNIA LEV 3 - ZEV",
+    "EPA Response Requested By": "1st October 2022",
+    "For Application related Questions, Contact": "Nitin Rana (510) 284-5049 nitinrana@lucidmotors.com"
+  },
+  "tables": [],
+  "detected_objects": []
+}

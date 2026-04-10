@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% set active_page = 'history' %}
+
+{% block title %}Scan History{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/pages/history.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1 class="page-title">Scan <span>History</span></h1>
+    <p class="page-subtitle">Complete record of all past OCR extractions</p>
+  </div>
+  <a href="/" class="btn btn-primary">+ New Scan</a>
+</div>
+
+<!-- Stats bar -->
+{% set total_scans = records|length %}
+{% set avg_time = (records | map(attribute='total_seconds') | list | sum / total_scans) if total_scans > 0 else 0 %}
+{% set total_fields = namespace(n=0) %}
+{% set type_counts = {} %}
+{% for r in records %}
+  {% set total_fields.n = total_fields.n + (r.key_value_pairs|length) %}
+  {% set dtype = r.doc_type or 'General' %}
+  {% if dtype in type_counts %}
+    {% set _ = type_counts.update({dtype: type_counts[dtype] + 1}) %}
+  {% else %}
+    {% set _ = type_counts.update({dtype: 1}) %}
+  {% endif %}
+{% endfor %}
+{% set common_type = 'General' %}
+{% set max_count = namespace(v=0) %}
+{% for t, c in type_counts.items() %}
+  {% if c > max_count.v %}
+    {% set max_count.v = c %}
+    {% set common_type = t %}
+  {% endif %}
+{% endfor %}
+
+<div class="stat-bar">
+  <div class="stat-card nexus-emboss">
+    <span class="stat-icon">🏷️</span>
+    <div class="stat-num" id="topType">{{ common_type }}</div>
+    <div class="stat-label">Most Common Type</div>
+  </div>
+  <div class="stat-card nexus-emboss">
+    <span class="stat-icon">⚡</span>
+    <div class="stat-num">{{ "%.1f"|format(avg_time) }}s</div>
+    <div class="stat-label">Avg Process Time</div>
+  </div>
+  <div class="stat-card nexus-emboss">
+    <span class="stat-icon">🔑</span>
+    <div class="stat-num">{{ total_fields.n }}</div>
+    <div class="stat-label">Fields Extracted</div>
+  </div>
+</div>
+
+<!-- Command Bar -->
+<div class="command-bar nexus-emboss">
+  <span style="font-size:1.2em;">🔍</span>
+  <input type="text" class="command-input" id="historySearch" placeholder="Filter by filename or type..." oninput="filterHistory()">
+  <div class="flex gap-2">
+    <button class="btn btn-ghost btn-sm" onclick="clearAllHistory()">🗑 Clear Repository</button>
+  </div>
+</div>
+
+<!-- Dossier Grid -->
+{% if records %}
+<div class="dossier-grid" id="historyGrid">
+  {% for r in records %}
+  {% set dtype = r.doc_type or 'General' %}
+  {% set tclass = 'badge-accent' if 'invoice' in dtype.lower() else ('badge-success' if 'id' in dtype.lower() else 'badge-ghost') %}
+  
+  <div class="dossier-card nexus-emboss" id="card-{{ r.id }}" data-name="{{ r.filename.lower() }}" data-type="{{ dtype.lower() }}" onclick="viewRecord({{ r.id }})">
+    <div class="dossier-header">
+      <div class="dossier-icon">📄</div>
+      <div class="dossier-meta">
+        <div class="dossier-name">{{ r.filename }}</div>
+        <div class="dossier-date">{{ r.processed_at }}</div>
+      </div>
+      <span class="badge {{ tclass }}">{{ dtype }}</span>
+    </div>
+
+    <div class="dossier-stats nexus-deboss">
+      <div class="d-stat">
+        <span class="d-stat-label" style="font-size:0.65em; text-transform:uppercase; opacity:0.6;">Fields</span>
+        <div class="d-stat-val">{{ r.key_value_pairs|length }} Entires</div>
+      </div>
+      <div class="d-stat">
+        <span class="d-stat-label" style="font-size:0.65em; text-transform:uppercase; opacity:0.6;">Latency</span>
+        <div class="d-stat-val text-accent">{{ "%.2f"|format(r.total_seconds or 0) }}s</div>
+      </div>
+    </div>
+
+    <div class="dossier-footer">
+      <div class="flex gap-2">
+         <button class="btn-icon" title="View Dossier">👁</button>
+      </div>
+      <button class="btn-icon danger" title="Archive/Delete" onclick="event.stopPropagation(); deleteRecord({{ r.id }})">🗑</button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state nexus-emboss" style="padding:80px; text-align:center; border-radius:40px;">
+  <div class="empty-icon" style="font-size:4em; margin-bottom:20px;">📭</div>
+  <h3>No Scans Yet</h3>
+  <p style="opacity:0.6;">Upload your first document on the dashboard to see history here.</p>
+  <a href="/" class="btn btn-primary" style="margin-top:22px;">Go to Dashboard</a>
+</div>
+{% endif %}
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal nexus-emboss">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Record Detail</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody" style="padding:32px;">
+      <div class="flex-center" style="padding:60px 0;">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/history.js"></script>
+{% endblock %}

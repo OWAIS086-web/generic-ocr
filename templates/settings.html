@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% set active_page = 'settings' %}
+
+{% block title %}Application Settings{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/pages/settings.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Application <span>Settings</span></h1>
+  <p class="page-subtitle">Configure AI processing pipeline, visualization preferences, and feature toggles</p>
+</div>
+
+<!-- AI Processing -->
+<div class="settings-card nexus-emboss">
+  <div class="settings-card-header">
+    <div class="settings-card-icon">🧠</div>
+    <h2>AI Processing Pipeline</h2>
+  </div>
+  <p style="margin-bottom:24px; opacity:0.6;">Control how much AI reasoning is applied to each document. Disabling LLM
+    structuring makes extraction faster but limits output to raw text only.</p>
+
+  <div class="setting-item nexus-deboss">
+    <div class="setting-info">
+      <h3>AI Structuring — Key-Value Mode</h3>
+      <p>Extracts deep key-value pairings, structured tables, and bilingual keys automatically via LLM reasoning.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;">
+      <label class="toggle-switch">
+        <input type="checkbox" id="kvModeSetting" onchange="saveSetting('aiStructuring', this.checked)">
+        <span class="toggle-slider nexus-deboss"></span>
+      </label>
+      <span class="setting-status" id="kvLabel">ON</span>
+    </div>
+  </div>
+
+  <div class="setting-item nexus-deboss">
+    <div class="setting-info">
+      <h3>Table Extraction Only Mode</h3>
+      <p>Strictly extracts structured rows and columns only. Ignores loose text — ideal for spreadsheet-style documents.
+      </p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;">
+      <label class="toggle-switch">
+        <input type="checkbox" id="tableModeSetting" onchange="saveSetting('tableMode', this.checked)">
+        <span class="toggle-slider nexus-deboss"></span>
+      </label>
+      <span class="setting-status" id="tableLabel">OFF</span>
+    </div>
+  </div>
+</div>
+
+<!-- Display & Visualization -->
+<div class="settings-card nexus-emboss">
+  <div class="settings-card-header">
+    <div class="settings-card-icon">🖼</div>
+    <h2>Display & Visualization</h2>
+  </div>
+  <p style="margin-bottom:24px; opacity:0.6;">Control rendering preferences after processing completes.</p>
+
+  <div class="setting-item nexus-deboss">
+    <div class="setting-info">
+      <h3>Show Annotated Image</h3>
+      <p>Displays the source document overlaid with colour-coded bounding boxes.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;">
+      <label class="toggle-switch">
+        <input type="checkbox" id="showAnnotatedImgSetting" onchange="saveSetting('showAnnotatedImage', this.checked)">
+        <span class="toggle-slider nexus-deboss"></span>
+      </label>
+      <span class="setting-status" id="annLabel">ON</span>
+    </div>
+  </div>
+
+  <div class="setting-item nexus-deboss">
+    <div class="setting-info">
+      <h3>Auto-Classify Documents</h3>
+      <p>Autonomous agent detects document types for organized history tagging.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;">
+      <label class="toggle-switch">
+        <input type="checkbox" id="autoClassifySetting" onchange="saveSetting('autoClassify', this.checked)">
+        <span class="toggle-slider nexus-deboss"></span>
+      </label>
+      <span class="setting-status" id="classLabel">ON</span>
+    </div>
+  </div>
+</div>
+
+<!-- Server Environment -->
+<div class="settings-card nexus-emboss">
+  <div class="settings-card-header">
+    <div class="settings-card-icon">📁</div>
+    <h2>Server Environment & Paths</h2>
+  </div>
+  <p style="margin-bottom:24px; opacity:0.6;">Configure server-side directories for automated ingestion. Paths are
+    relative to project root.</p>
+
+  <div class="setting-item nexus-deboss" style="flex-direction:column; align-items:flex-start;">
+    <div class="setting-info">
+      <h3>Server Bulk Folder Path</h3>
+      <p>Specify the directory for batch ingestion (default: <code>data/</code>).</p>
+      <input type="text" id="serverBulkPathInput" placeholder="e.g. data/" class="nexus-deboss"
+        style="width: 100%; margin-top: 16px; border-radius: 12px; padding: 12px 18px; color: var(--text); font-family: var(--font-mono); font-size: 0.9em; border:none;"
+        onchange="localStorage.setItem('serverBulkPath', this.value); showToast('✅ Path updated')">
+    </div>
+  </div>
+</div>
+
+<!-- About -->
+<div class="settings-card nexus-emboss">
+  <div class="settings-card-header">
+    <div class="settings-card-icon">ℹ️</div>
+    <h2>About VisionRD OCR</h2>
+  </div>
+  <p style="margin-bottom:16px;">Powered by VisionRD Neural Engine v2.5. Multilingual document intelligence platform.
+  </p>
+  <div class="version-badge nexus-deboss">⚡ VisionRD OCR v2.2 &nbsp;·&nbsp; Nexus Matrix Edition</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/settings.js"></script>
+{% endblock %}
+
+</script>
+</body>
+
+</html>

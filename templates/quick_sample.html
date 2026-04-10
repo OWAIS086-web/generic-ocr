@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% set active_page = 'quick_sample' %}
+
+{% block title %}Quick Sample{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/pages/quick_sample.css">
+{% endblock %}
+
+{% block content %}
+<!-- ── GALLERY SECTION ── -->
+<div id="gallerySection">
+  <div class="page-header">
+    <h1 class="page-title">Quick <span>Sample</span></h1>
+    <p class="page-subtitle">Click any image below to run OCR processing and see extracted data instantly</p>
+  </div>
+
+  {% if images %}
+  <div class="gallery-grid">
+    {% for img in images %}
+    <div class="gallery-card nexus-emboss" onclick="processImage('{{ img }}')">
+      <img src="/data/{{ img }}" alt="{{ img }}" loading="lazy"
+           onerror="this.style.display='none'">
+      <div class="gallery-card-info">
+        <div class="gallery-card-name" title="{{ img }}">{{ img }}</div>
+        <button class="quick-run-btn" onclick="event.stopPropagation(); processImage('{{ img }}')">Initiate</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state nexus-emboss" style="padding:80px; text-align:center; border-radius:40px;">
+    <div class="empty-icon" style="font-size:4em; margin-bottom:20px;">🖼</div>
+    <h3>No Sample Images Found</h3>
+    <p style="opacity:0.6;">Add images to the data/ folder to use Quick Sample.</p>
+    <a href="/" class="btn btn-primary" style="margin-top:20px;">Upload Your Own →</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── PROCESSING SECTION ── -->
+<div id="processingSection">
+  <div class="page-header">
+    <h1 class="page-title">Initiating <span>Neural Analysis</span></h1>
+    <p class="page-subtitle" id="processingName">Target: Sample Document</p>
+  </div>
+
+  <div class="nexus-processing-box nexus-emboss" style="border-radius:40px;">
+    <div class="flex-center" style="margin-bottom:32px;"><div class="spinner"></div></div>
+    <h3>Analysing Repository…</h3>
+    <p>Grounded AI is extracting structured intelligence</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:48px;flex-wrap:wrap;">
+      <div class="process-step nexus-deboss" id="step1">📷 Preprocess</div>
+      <div class="process-step nexus-deboss" id="step2">🔍 Binary Extraction</div>
+      <div class="process-step nexus-deboss" id="step3">🏷️ Identification</div>
+      <div class="process-step nexus-deboss" id="step4">🧠 AI Logic</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESULT SECTION ── -->
+<div id="resultSection">
+  <div class="page-header flex-between">
+    <div>
+      <h1 class="page-title">Extraction <span>Complete</span></h1>
+      <p class="page-subtitle" id="resultName"></p>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn btn-ghost" onclick="backToGallery()">← Gallery</button>
+      <a href="/" class="btn btn-primary">Upload Own Doc</a>
+    </div>
+  </div>
+
+  <!-- Selected image preview -->
+  <div class="selected-preview nexus-emboss" style="border-radius:28px;">
+    <img id="resultImg" src="" alt="Processed image" class="nexus-deboss">
+    <div class="selected-preview-info">
+      <h3 id="resultImgName"></h3>
+      <p id="resultImgMsg">Results extracted below</p>
+      <div class="flex gap-2" style="margin-top:12px;">
+        <span class="badge badge-success nexus-deboss" id="resultTimeBadge">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="resultError" class="hidden nexus-emboss" style="border-left:4px solid var(--nexus-red); padding:20px 28px; color:var(--nexus-red); margin-bottom:32px; font-weight:600;"></div>
+
+  <!-- Performance metrics -->
+  <div class="result-section">
+    <div class="section-label">Performance Metrics</div>
+    <div class="metrics-grid">
+      <div class="metric-card nexus-emboss"><div class="metric-label">Preprocessing</div><div class="metric-value" id="rTimePre">—</div></div>
+      <div class="metric-card nexus-emboss"><div class="metric-label">OCR Core</div><div class="metric-value" id="rTimeExt">—</div></div>
+      <div class="metric-card nexus-emboss"><div class="metric-label">AI Matrix</div><div class="metric-value" id="rTimeLLM">—</div></div>
+      <div class="metric-card nexus-emboss highlight" style="background:var(--nexus-red);"><div class="metric-label" style="color:rgba(255,255,255,0.8);">Total Latency</div><div class="metric-value" id="rTimeTotal" style="color:#fff;">—</div></div>
+    </div>
+  </div>
+
+  <div class="glow-divider" style="margin:40px 0;"></div>
+
+  <!-- Key-Value Pairs -->
+  <div class="result-section" id="rKvSection" style="display:none;">
+    <div class="section-label">🔑 Key-Value Pairs</div>
+    <div class="kv-grid" id="rKvContainer"></div>
+  </div>
+
+  <!-- Tables -->
+  <div class="result-section" id="rTableSection" style="display:none;">
+    <div class="section-label">📊 Tables</div>
+    <div id="rTableContainer"></div>
+  </div>
+
+  <!-- Raw Text -->
+  <div class="result-section" id="rRawSection" style="display:none;">
+    <div class="section-label">📄 Raw OCR Text</div>
+    <div class="raw-text-block nexus-deboss" id="rRawText" style="padding:24px; border-radius:16px; white-space:pre-wrap; font-size:0.95em;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/quick_sample.js"></script>
+{% endblock %}

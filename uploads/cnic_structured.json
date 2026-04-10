@@ -1,0 +1,22 @@
+{
+  "key_value_pairs": {
+    "PAKISTAN National Identity Card": "",
+    "Islamic Republic of Pakistan": "",
+    "Name": "Abdul Rehman",
+    "Father Name": "Altaf Ahmed",
+    "Gender": "M",
+    "Country of Stay": "Pakistan",
+    "Identity Number": "43201-3166447-1",
+    "Date of Birth": "01.01.2004",
+    "Date of Issue": "17.02.2020",
+    "Date of Expiry": "17.02.2030",
+    "Under 18 until": "01.01.2022"
+  },
+  "tables": [],
+  "detected_objects": [
+    {
+      "type": "ID Card",
+      "description": ""
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "key_value_pairs": {
+    "DRIVER LICENSE": "",
+    "Traffic Police, Punjab": "",
+    "License No": "LE-13-1",
+    "Name": "M. TAHIR SHAFI",
+    "S/O W/O D/O": "M. SHAFI MAQSOOD",
+    "Address": "GOLF ROAD, GOR-1, LAHORE",
+    "Height": "5'8\"",
+    "Blood Group": "O+ve",
+    "Date of Birth": "15-10-1986",
+    "CNIC No.": "35302-23833499",
+    "Issue Date": "02-01-2013",
+    "Expiry Date": "01-10-2016",
+    "Licensing Authority": "Lahore"
+  },
+  "tables": [],
+  "detected_objects": [
+    {
+      "type": "ID card",
+      "description": "Driver License issued by Traffic Police, Punjab"
+    }
+  ]
+}

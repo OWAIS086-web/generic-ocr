@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionRD OCR — {% block title %}Document Intelligence{% endblock %}</title>
+  
+  <!-- Global Design System -->
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/neumorphism.css">
+  
+  {% block head_extra %}{% endblock %}
+  
+  <style>
+    {% block styles %}{% endblock %}
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <img src="/static/logo.svg" alt="VisionRD" style="width:30px; height:30px; object-fit:contain; filter:brightness(0) invert(1);">
+        </div>
+        <div>
+          <div class="logo-text">VisionRD OCR</div>
+          <div class="logo-sub">VisionRD AI</div>
+        </div>
+      </div>
+
+      <nav class="nav-group">
+        <div class="nav-label">Main</div>
+        <a href="/" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+          <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a href="/bulk-upload" class="nav-item {% if active_page == 'bulk' %}active{% endif %}">
+          <span class="nav-icon">📁</span> Bulk Ingestion
+        </a>
+        <a href="/history" class="nav-item {% if active_page == 'history' %}active{% endif %}">
+          <span class="nav-icon">🕑</span> History
+        </a>
+        <a href="/quick-sample" class="nav-item {% if active_page == 'quick' %}active{% endif %}">
+          <span class="nav-icon">⚡</span> Quick Sample
+        </a>
+      </nav>
+
+      <nav class="nav-group">
+        <div class="nav-label">Tools</div>
+        <a href="/edit" class="nav-item {% if active_page == 'edit' %}active{% endif %}">
+          <span class="nav-icon">✏️</span> Edit Results
+        </a>
+        <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+          <span class="nav-icon">⚙️</span> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        VisionRD OCR v2.2<br>
+        <span class="text-accent">Nexus Matrix Edition</span>
+      </div>
+    </aside>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <main class="content-area">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Common UI Elements -->
+  <div id="toast"></div>
+  <div id="ocrTooltip"></div>
+
+  <!-- Global Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/static/js/global.js"></script>
+  
+  {% block scripts %}{% endblock %}
+</body>
+</html>

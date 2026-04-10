@@ -1,700 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Intelligence - OCR & Data Extraction</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            color: white;
-        }
-        
-        .logo {
-            font-size: 1.8em;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .upload-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 60px 40px;
-            text-align: center;
-            color: white;
-        }
-        
-        .upload-section h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-        
-        .upload-section p {
-            font-size: 1.1em;
-            opacity: 0.9;
-            margin-bottom: 40px;
-        }
-        
-        .upload-area {
-            border: 3px dashed rgba(255, 255, 255, 0.5);
-            border-radius: 15px;
-            padding: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.1);
-            margin-bottom: 30px;
-        }
-        
-        .upload-area:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: white;
-            transform: scale(1.02);
-        }
-        
-        .upload-area input {
-            display: none;
-        }
-        
-        .upload-icon {
-            font-size: 4em;
-            margin-bottom: 15px;
-        }
-        
-        .upload-text {
-            font-size: 1.2em;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        .upload-subtext {
-            font-size: 0.95em;
-            opacity: 0.8;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-        
-        button {
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 10px;
-            font-size: 1.05em;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .content-section {
-            padding: 40px;
-            display: none;
-        }
-        
-        .content-section.show {
-            display: block;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 60px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .spinner {
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid white;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .results-header h2 {
-            color: #333;
-            font-size: 2em;
-        }
-        
-        .timing-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 1.1em;
-        }
-        
-        .section {
-            margin-bottom: 50px;
-        }
-        
-        .section-title {
-            color: #667eea;
-            margin-bottom: 25px;
-            font-size: 1.6em;
-            font-weight: 700;
-            border-left: 5px solid #667eea;
-            padding-left: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .icon {
-            font-size: 1.5em;
-        }
-        
-        /* KEY-VALUE PAIRS */
-        .key-value-pairs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
-        
-        .kv-item {
-            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 5px solid #667eea;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .kv-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
-        }
-        
-        .kv-item.editable::after {
-            content: '✏️';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2em;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .kv-item:hover.editable::after {
-            opacity: 1;
-        }
-        
-        .kv-key {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-        
-        .kv-value {
-            color: #333;
-            font-size: 1.15em;
-            word-break: break-word;
-            font-weight: 600;
-            line-height: 1.5;
-        }
-        
-        /* TABLES */
-        .tables-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-        
-        .table-wrapper {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .table-wrapper:hover {
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-        }
-        
-        .table-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 18px 25px;
-            font-weight: 700;
-            font-size: 1.1em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .table-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .table-actions button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
-            font-size: 0.9em;
-            border-radius: 6px;
-        }
-        
-        .table-actions button:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        
-        th {
-            background: #f8f9ff;
-            color: #667eea;
-            padding: 16px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 0.95em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #667eea;
-        }
-        
-        td {
-            border-bottom: 1px solid #f0f0f0;
-            padding: 14px 16px;
-            color: #333;
-            font-size: 0.95em;
-        }
-        
-        tr:hover {
-            background: #f8f9ff;
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        /* ERROR STATE */
-        .error {
-            background: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            color: #856404;
-            font-weight: 500;
-        }
-        
-        /* PERFORMANCE METRICS */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
-        .metric-card {
-            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 5px solid #667eea;
-            text-align: center;
-        }
-        
-        .metric-card.total {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-left: none;
-        }
-        
-        .metric-label {
-            color: #999;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        
-        .metric-card.total .metric-label {
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .metric-value {
-            color: #667eea;
-            font-size: 1.8em;
-            font-weight: 700;
-        }
-        
-        .metric-card.total .metric-value {
-            color: white;
-        }
-        
-        /* EDIT BUTTON */
-        .edit-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 28px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-        
-        .edit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="logo">
-            📄 Document Intelligence
-        </div>
+{% extends "base.html" %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}Document Intelligence{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/pages/dashboard.css">
+{% endblock %}
+
+{% block content %}
+<!-- Page header -->
+<div class="page-header flex-between" style="margin-bottom: 20px;">
+  <div>
+    <h1 class="page-title" style="font-size: 1.6em; margin-bottom: 2px;">Document <span>Intelligence</span></h1>
+    <p class="page-subtitle" style="font-size: 0.85em;">AI-powered OCR with structured extraction</p>
+  </div>
+  <div class="flex gap-3">
+    <button class="btn btn-ghost btn-sm" onclick="location.reload()">🔄 Refresh</button>
+  </div>
+</div>
+
+
+
+<!-- Upload hero -->
+<div class="upload-hero nexus-emboss" id="uploadHero">
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+    <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none;">
+    <span class="upload-icon-big">🧠</span>
+    <h2 style="font-weight:700; letter-spacing:-0.5px; margin-bottom:4px; font-size:1.1em;">Upload Document</h2>
+    <p style="opacity:0.5; font-size:0.8em;">Drag & drop or click to select</p>
+  </div>
+
+  <div id="fileChipWrap" style="text-align:center; display:none; margin-top:14px;">
+    <div class="file-chip nexus-deboss" id="fileChip" style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; font-size:0.85em;">
+      <span style="color:var(--nexus-red);">📄</span>
+      <span id="fileChipName" style="font-family:var(--font-mono); font-weight:600;"></span>
+      <span class="remove-file" style="cursor:pointer; opacity:0.5; font-size:1em;" onclick="clearFile()">✕</span>
     </div>
-    
-    <div class="container">
-        <!-- UPLOAD SECTION -->
-        <div class="upload-section" id="uploadSection">
-            <h1>📊 Structured Data Extraction</h1>
-            <p>AI-powered document processing with intelligent data recognition</p>
-            
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <input type="file" id="fileInput" accept="image/*,.pdf">
-                <div class="upload-icon">📁</div>
-                <p class="upload-text">Click to upload or drag and drop</p>
-                <p class="upload-subtext">Supports: JPG, PNG, PDF</p>
-            </div>
-            
-            <div class="button-group">
-                <button onclick="uploadFile()" id="uploadBtn" disabled>Process Document</button>
-            </div>
-        </div>
-        
-        <!-- LOADING SECTION -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p style="font-size: 1.1em;">Processing your document...</p>
-            <p style="opacity: 0.8; margin-top: 10px;">This may take a few moments</p>
-        </div>
-        
-        <!-- CONTENT SECTION -->
-        <div class="content-section" id="contentSection">
-            <div id="error"></div>
-            
-            <div class="results-header">
-                <h2>✅ Extraction Complete</h2>
-                <div class="timing-badge" id="timingBadge">0.0s</div>
-            </div>
-            
-            <!-- KEY-VALUE PAIRS -->
-            <div class="section" id="kvSection" style="display: none;">
-                <div class="section-title">
-                    <span class="icon">🔑</span>
-                    Key-Value Pairs
-                </div>
-                <div class="key-value-pairs" id="kvContainer"></div>
-                <button class="edit-button" onclick="editKeyValuePairs()">✏️ Edit Key-Value Pairs</button>
-            </div>
-            
-            <!-- TABLES -->
-            <div class="section" id="tableSection" style="display: none;">
-                <div class="section-title">
-                    <span class="icon">📊</span>
-                    Tables
-                </div>
-                <div class="tables-container" id="tableContainer"></div>
-                <button class="edit-button" onclick="editTables()">✏️ Edit Tables</button>
-            </div>
-            
-            <!-- RAW TEXT -->
-            <div class="section" id="rawSection" style="display: none;">
-                <div class="section-title">
-                    <span class="icon">📄</span>
-                    Raw Text
-                </div>
-                <div class="raw-text" id="rawText"></div>
-            </div>
-            
-            <!-- PERFORMANCE METRICS -->
-            <div class="section">
-                <div class="section-title">
-                    <span class="icon">⏱️</span>
-                    Performance Metrics
-                </div>
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">Preprocessing</div>
-                        <div class="metric-value" id="timePre">-</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Text Extraction</div>
-                        <div class="metric-value" id="timeExt">-</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Structuring</div>
-                        <div class="metric-value" id="timeLLM">-</div>
-                    </div>
-                    <div class="metric-card total">
-                        <div class="metric-label">Total Time</div>
-                        <div class="metric-value" id="timeTotal">-</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  </div>
+
+  <div style="text-align:center; margin-top:16px;">
+    <button class="btn btn-primary" id="processBtn" disabled onclick="uploadFile()" style="padding: 10px 28px; font-size:0.9em;">
+      Analyze Document
+    </button>
+  </div>
+</div>
+
+<!-- Processing overlay -->
+<div id="processingOverlay" class="nexus-emboss hidden" style="padding:40px; text-align:center;">
+  <div class="flex-center" style="margin-bottom:16px;">
+    <div class="spinner"></div>
+  </div>
+  <h3 style="font-weight:700; font-size:1em; margin-bottom:4px;">Processing Document...</h3>
+  <p style="opacity:0.6; font-size:0.85em; margin-bottom:16px;">Extracting data and analyzing content</p>
+  <div class="process-steps" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:8px;">
+    <div class="process-step nexus-deboss" id="step1" style="padding:8px; font-size:0.8em;">📷 Prep</div>
+    <div class="process-step nexus-deboss" id="step2" style="padding:8px; font-size:0.8em;">🔍 OCR</div>
+    <div class="process-step nexus-deboss" id="step3" style="padding:8px; font-size:0.8em;">🤖 Classify</div>
+    <div class="process-step nexus-deboss" id="step4" style="padding:8px; font-size:0.8em;">🧠 Structure</div>
+  </div>
+</div>
+
+<!-- Error banner -->
+<div id="errorBanner" class="hidden nexus-emboss" style="border-color:var(--nexus-red); padding:16px 28px; color:var(--nexus-red); margin-bottom:32px;"></div>
+
+<!-- Results -->
+<div class="results-wrap" id="resultsWrap">
+  <div class="results-topbar nexus-emboss">
+    <div class="results-title">
+      <div class="status-indicator"></div>
+      <h2 style="font-weight:700; text-transform:uppercase; font-size:0.9em;">Extraction Complete</h2>
+      <div class="badge badge-accent" id="docTypeBadge" style="display:none; margin-left:10px; font-size:0.75em;">General</div>
     </div>
-    
-    <script>
-        let currentData = null;
-        const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.getElementById('uploadBtn');
-        
-        // Drag and drop
-        document.querySelector('.upload-area').addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.currentTarget.style.borderColor = 'white';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-        });
-        
-        document.querySelector('.upload-area').addEventListener('dragleave', (e) => {
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-        });
-        
-        document.querySelector('.upload-area').addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-            fileInput.files = e.dataTransfer.files;
-            uploadBtn.disabled = false;
-        });
-        
-        fileInput.addEventListener('change', () => {
-            uploadBtn.disabled = false;
-        });
-        
-        function uploadFile() {
-            const file = fileInput.files[0];
-            if (!file) return;
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            document.getElementById('uploadSection').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('contentSection').classList.remove('show');
-            document.getElementById('error').innerHTML = '';
-            
-            fetch('/process', {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                document.getElementById('loading').style.display = 'none';
-                
-                if (data.status === 'success') {
-                    currentData = data;
-                    displayResults(data);
-                } else {
-                    showError(data.message || 'Processing failed');
-                }
-            })
-            .catch(err => {
-                document.getElementById('loading').style.display = 'none';
-                showError(err.message);
-            });
-        }
-        
-        function displayResults(data) {
-            const kvPairs = data.key_value_pairs || {};
-            const tables = data.tables || [];
-            const rawText = data.raw_text || '';
-            
-            console.log('Received data:', data);
-            console.log('Key-value pairs:', kvPairs);
-            console.log('Tables:', tables);
-            
-            // DISPLAY KEY-VALUE PAIRS
-            if (Object.keys(kvPairs).length > 0) {
-                const kvContainer = document.getElementById('kvContainer');
-                kvContainer.innerHTML = '';
-                
-                const sortedKeys = Object.keys(kvPairs).sort();
-                
-                for (const key of sortedKeys) {
-                    const value = kvPairs[key];
-                    const div = document.createElement('div');
-                    div.className = 'kv-item editable';
-                    
-                    div.innerHTML = `
-                        <div class="kv-key">${escapeHtml(key)}</div>
-                        <div class="kv-value">${escapeHtml(String(value))}</div>
-                    `;
-                    div.onclick = () => editSingleKVPair(key, value);
-                    kvContainer.appendChild(div);
-                }
-                document.getElementById('kvSection').style.display = 'block';
-                console.log('Displayed ' + sortedKeys.length + ' key-value pairs');
-            }
-            
-            // DISPLAY TABLES
-            if (tables.length > 0) {
-                const tableContainer = document.getElementById('tableContainer');
-                tableContainer.innerHTML = '';
-                tables.forEach((table, idx) => {
-                    if (table.headers && Array.isArray(table.headers) && table.rows && Array.isArray(table.rows)) {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'table-wrapper';
-                        
-                        let html = `<div class="table-header">
-                            <span>${escapeHtml(table.name || `Table ${idx + 1}`)}</span>
-                            <div class="table-actions">
-                                <button onclick="editTable(${idx})">Edit</button>
-                            </div>
-                        </div>`;
-                        html += '<table><thead><tr>';
-                        
-                        table.headers.forEach(h => {
-                            html += `<th>${escapeHtml(String(h))}</th>`;
-                        });
-                        html += '</tr></thead><tbody>';
-                        
-                        table.rows.forEach(row => {
-                            html += '<tr>';
-                            if (Array.isArray(row)) {
-                                row.forEach(cell => {
-                                    html += `<td>${escapeHtml(String(cell))}</td>`;
-                                });
-                            }
-                            html += '</tr>';
-                        });
-                        html += '</tbody></table>';
-                        wrapper.innerHTML = html;
-                        tableContainer.appendChild(wrapper);
-                    }
-                });
-                if (tableContainer.children.length > 0) {
-                    document.getElementById('tableSection').style.display = 'block';
-                    console.log('Displayed ' + tableContainer.children.length + ' tables');
-                }
-            }
-            
-            // DISPLAY RAW TEXT
-            if (rawText) {
-                document.getElementById('rawText').textContent = rawText;
-                document.getElementById('rawSection').style.display = 'block';
-                console.log('Displayed raw text');
-            }
-            
-            // Timing
-            const timings = data.timings || {};
-            const total = (timings.total || 0).toFixed(2);
-            document.getElementById('timePre').textContent = (timings.preprocessing || 0).toFixed(2) + 's';
-            document.getElementById('timeExt').textContent = (timings.structured_extraction || timings.text_extraction || 0).toFixed(2) + 's';
-            document.getElementById('timeLLM').textContent = (timings.llm_structuring || 0).toFixed(2) + 's';
-            document.getElementById('timeTotal').textContent = total + 's';
-            document.getElementById('timingBadge').textContent = total + 's';
-            
-            document.getElementById('contentSection').classList.add('show');
-        }
-        
-        function editSingleKVPair(key, value) {
-            const newValue = prompt(`Edit value for "${key}":`, value);
-            if (newValue !== null) {
-                currentData.key_value_pairs[key] = newValue;
-                displayResults(currentData);
-            }
-        }
-        
-        function editKeyValuePairs() {
-            window.location.href = '/edit?type=kv&data=' + encodeURIComponent(JSON.stringify(currentData));
-        }
-        
-        function editTables() {
-            window.location.href = '/edit?type=table&data=' + encodeURIComponent(JSON.stringify(currentData));
-        }
-        
-        function editTable(idx) {
-            window.location.href = '/edit?type=table&index=' + idx + '&data=' + encodeURIComponent(JSON.stringify(currentData));
-        }
-        
-        function showError(msg) {
-            const error = document.getElementById('error');
-            error.innerHTML = `<div class="error">❌ ${escapeHtml(msg)}</div>`;
-            document.getElementById('contentSection').classList.add('show');
-        }
-        
-        function escapeHtml(text) {
-            const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
-            return String(text).replace(/[&<>"']/g, m => map[m]);
-        }
-    </script>
+    <div class="results-actions flex gap-2">
+      <button class="btn btn-ghost btn-sm" onclick="resetUpload()">New</button>
+    </div>
+  </div>
+
+  <div class="results-body" id="resultsBody">
+    <!-- LEFT: Annotated Image Viewer -->
+    <div class="image-viewer-section" id="imageViewerSection" style="display:none;">
+      <div class="section-label" style="margin-bottom:12px;">🖼 Document</div>
+      <div class="image-viewer-wrap nexus-emboss" id="imageViewerWrap" style="position:relative; border-radius:12px; overflow:hidden;">
+        <img id="annotatedImg" src="" alt="Annotated document" style="max-width:100%; display:block; filter: contrast(1.1) brightness(0.9);" />
+        <canvas id="ocrCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; cursor:crosshair;"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT: Data panels -->
+    <div id="dataPanels">
+      <div class="result-section">
+        <div class="section-label" style="margin-bottom:12px;">⏱ Performance</div>
+        <div class="metrics-grid">
+          <div class="metric-card nexus-deboss">
+            <div class="metric-label">Prep</div>
+            <div class="metric-value" id="timePre">—</div>
+          </div>
+          <div class="metric-card nexus-deboss">
+            <div class="metric-label">Extract</div>
+            <div class="metric-value" id="timeExt">—</div>
+          </div>
+          <div class="metric-card nexus-deboss">
+            <div class="metric-label">LLM</div>
+            <div class="metric-value" id="timeLLM">—</div>
+          </div>
+          <div class="metric-card highlight nexus-deboss">
+            <div class="metric-label">Total</div>
+            <div class="metric-value" id="timeTotal">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-section" id="kvSection" style="display:none;">
+        <div class="section-label" style="margin-bottom:12px;">🔑 Key-Value Data</div>
+        <div class="kv-grid" id="kvContainer"></div>
+      </div>
+
+      <div class="result-section" id="tableSection" style="display:none;">
+        <div class="section-label" style="margin-bottom:12px;">📊 Tables</div>
+        <div id="tableContainer"></div>
+      </div>
+
+      <div class="result-section" id="rawSection" style="display:none;">
+        <div class="section-label" style="margin-bottom:12px;">📄 Raw Text</div>
+        <div class="raw-text-block nexus-deboss" id="rawText" style="padding:14px; border-radius:12px; font-size:0.8em;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/dashboard.js"></script>
+{% endblock %}
+g(s).replace(/[&<>"']/g, c => m[c]);
+    }
+  </script>
 </body>
+
 </html>

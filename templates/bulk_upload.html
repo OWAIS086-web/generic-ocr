@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% set active_page = 'bulk' %}
+
+{% block title %}Neural Ingestion Matrix{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/pages/bulk_upload.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between" style="margin-bottom: 20px;">
+  <div>
+    <h1 class="page-title" style="font-size: 1.6em; margin-bottom: 2px;">Bulk <span>Processing</span></h1>
+    <p class="page-subtitle" style="font-size: 0.85em;">Process multiple documents in parallel</p>
+  </div>
+  <div class="flex gap-3">
+    <a href="/settings" class="btn btn-ghost btn-sm">⚙ Settings</a>
+  </div>
+</div>
+
+<div class="matrix-container">
+  <!-- Active Settings Bar -->
+  <div class="settings-bar nexus-emboss" style="margin-bottom: 20px;">
+    <div style="font-size:0.7em; font-weight:700; opacity:0.5; text-transform:uppercase; letter-spacing:1.5px;">Active:</div>
+    <div class="setting-badge" id="pillKV" style="display:none;">
+      <span class="badge-dot"></span> Key-Value
+    </div>
+    <div class="setting-badge" id="pillClass" style="display:none;">
+      <span class="badge-dot"></span> Classification
+    </div>
+    <div class="setting-badge" id="pillAnn" style="display:none;">
+      <span class="badge-dot"></span> Annotation
+    </div>
+    <div class="setting-badge" id="pillTable" style="display:none;">
+      <span class="badge-dot"></span> Tables
+    </div>
+  </div>
+
+  <!-- ══ SELECTION PHASE ══ -->
+  <div id="selectionView" class="selection-card">
+    <div class="card-content">
+      <div class="icon-circle">📁</div>
+      <h2 style="font-weight:700; font-size:1.3em; margin-bottom:8px;">Ready to Process</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px; font-size:0.9em;">Scanning <code id="configuredPathDisplay" style="color:var(--nexus-red); background:transparent; border:none; padding:0; font-family:var(--font-mono);">data/</code></p>
+      
+      <div class="files-preview nexus-deboss" id="repoPreview">
+        <div style="opacity:0.3; text-align:center; padding:24px; font-size:0.9em;">Loading documents...</div>
+      </div>
+      
+      <button class="btn btn-primary" id="startBtn" onclick="startMatrixJob()" style="margin-top:20px; width:100%;" disabled>
+        Start Processing
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ EXECUTION PHASE ══ -->
+  <div id="dashboardView" class="dashboard-view" style="display:none;">
+    <div class="progress-header nexus-emboss">
+      <div class="progress-circle">
+        <svg viewBox="0 0 100 100" style="width:120px; height:120px; transform:rotate(-90deg);">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" />
+          <circle id="dashCircleFg" cx="50" cy="50" r="44" fill="none" stroke="var(--nexus-red)" stroke-width="6"
+            stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="276"
+            style="transition:0.6s var(--ease);" />
+        </svg>
+        <div id="dashPercent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-weight:800; font-size:1.6em;">0%</div>
+      </div>
+      <div class="progress-stats">
+        <div class="stat-box nexus-deboss">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="statManifest">0</div>
+        </div>
+        <div class="stat-box nexus-deboss success">
+          <div class="stat-label">Success</div>
+          <div class="stat-value" id="statIngested">0</div>
+        </div>
+        <div class="stat-box nexus-deboss error">
+          <div class="stat-label">Failed</div>
+          <div class="stat-value" id="statErrors">0</div>
+        </div>
+        <div class="stat-box nexus-deboss">
+          <div class="stat-label">Avg Time</div>
+          <div class="stat-value" id="statLatency">0s</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Results</div>
+    <div class="results-grid" id="mainDossier">
+      <!-- Cards append here -->
+    </div>
+
+    <div style="margin-top:40px; text-align:center; display:none;" id="finishedPanel">
+      <button class="btn btn-primary" onclick="location.reload()">Process More</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/bulk_upload.js"></script>
+{% endblock %}
